@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.cnt</groupId>
+	<artifactId>jdk8-source-read</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
+
+	<name>jdk8-source-read</name>
+	<url>http://maven.apache.org</url>
+	<description>JDK8源码阅读/加注释</description>
+	<organization>
+		<name>微信公众号：编程新说</name>
+		<url>coding-new-talking</url>
+	</organization>
+	<developers>
+		<developer>
+			<name>李新杰</name>
+		</developer>
+	</developers>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+</project>
