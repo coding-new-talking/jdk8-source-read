@@ -386,6 +386,7 @@ public abstract class AbstractQueuedSynchronizer
         /** waitStatus value to indicate thread has cancelled */
         static final int CANCELLED =  1;
         /** waitStatus value to indicate successor's thread needs unparking */
+        //表示后继者的线程需要被唤醒
         static final int SIGNAL    = -1;
         /** waitStatus value to indicate thread is waiting on condition */
         static final int CONDITION = -2;
@@ -406,7 +407,7 @@ public abstract class AbstractQueuedSynchronizer
          *               on failure, block.
          *   CANCELLED:  This node is cancelled due to timeout or interrupt.
          *               Nodes never leave this state. In particular,
-         *               a thread with cancelled node never again blocks.
+         *                                                
          *   CONDITION:  This node is currently on a condition queue.
          *               It will not be used as a sync queue node
          *               until transferred, at which time the status
@@ -618,18 +619,29 @@ public abstract class AbstractQueuedSynchronizer
      * @param mode Node.EXCLUSIVE for exclusive, Node.SHARED for shared
      * @return the new node
      */
+    //在尾部追加一个节点，首先进行一次尝试
+    //如果不成功，再进行入队调用
     private Node addWaiter(Node mode) {
         Node node = new Node(Thread.currentThread(), mode);
         // Try the fast path of enq; backup to full enq on failure
+        //获取尾部节点
         Node pred = tail;
+        //不为null，队列不空
         if (pred != null) {
+        	//待插入节点向前指
             node.prev = pred;
+            //cas将待插入节点设置为新尾部，如果成功，则幸运
+            //如果不成功，则在下方调用入队方法
             if (compareAndSetTail(pred, node)) {
+            	//原尾部节点向后指
                 pred.next = node;
+                //返回新节点
                 return node;
             }
         }
+        //入队方法，内部有for循环不断尝试，直到成功
         enq(node);
+        //返回新节点
         return node;
     }
 
@@ -651,6 +663,7 @@ public abstract class AbstractQueuedSynchronizer
      *
      * @param node the node
      */
+    //唤醒一个节点的后继者，如果存在的话
     private void unparkSuccessor(Node node) {
         /*
          * If status is negative (i.e., possibly needing signal) try
@@ -659,6 +672,7 @@ public abstract class AbstractQueuedSynchronizer
          */
         int ws = node.waitStatus;
         if (ws < 0)
+        	//将当前节点设置为0，失败了也无所谓
             compareAndSetWaitStatus(node, ws, 0);
 
         /*
@@ -667,14 +681,20 @@ public abstract class AbstractQueuedSynchronizer
          * traverse backwards from tail to find the actual
          * non-cancelled successor.
          */
+        //获取后继者
         Node s = node.next;
+        //如果不存在或已取消
         if (s == null || s.waitStatus > 0) {
             s = null;
+            //从尾部向前遍历
             for (Node t = tail; t != null && t != node; t = t.prev)
+            	//找到该节点后面距离该节点最近且未取消的一个节点
                 if (t.waitStatus <= 0)
                     s = t;
         }
+        //如果找到
         if (s != null)
+        	//唤醒节点中的线程
             LockSupport.unpark(s.thread);
     }
 
@@ -848,8 +868,12 @@ public abstract class AbstractQueuedSynchronizer
      *
      * @return {@code true} if interrupted
      */
+    //阻塞和检测中断
     private final boolean parkAndCheckInterrupt() {
+    	//使当前线程在当前对象this上阻塞等待
+    	//即当前线程不再参与线程调度
         LockSupport.park(this);
+        //线程被唤醒后，返回是否被中断
         return Thread.interrupted();
     }
 
