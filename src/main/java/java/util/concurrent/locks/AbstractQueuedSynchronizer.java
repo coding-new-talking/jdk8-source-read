@@ -580,16 +580,32 @@ public abstract class AbstractQueuedSynchronizer
      * @param node the node to insert
      * @return node's predecessor
      */
+    //入队
+    //多线程往队列插入节点
+    //如果队列为空，都去设置头节点，只有一个线程会成功
+    //接着就变为从尾部追加节点，通过for多次尝试，最终都能成功
     private Node enq(final Node node) {
+    	//循环尝试
         for (;;) {
+        	//获取尾节点
             Node t = tail;
+            //没有尾节点，表明是空队列
             if (t == null) { // Must initialize
+            	//cas设置头节点，多线程时，只有一个线程会成功，它是幸运的
+            	//没有成功的线程，将进入下一次for循环，去尝试在尾部插入节点
                 if (compareAndSetHead(new Node()))
+                	//头尾指向同一个节点
                     tail = head;
+            //else分支在尾部尝试
             } else {
+            	//带插入节点向前指向尾部节点
                 node.prev = t;
+                //cas将待插入节点设置为新尾部，如果成功的话，将成为新尾部
+                //如果失败的话，将进入下一次for循环尝试
                 if (compareAndSetTail(t, node)) {
+                	//原尾部节点向后指向新尾部节点
                     t.next = node;
+                    //返回原尾部节点
                     return t;
                 }
             }

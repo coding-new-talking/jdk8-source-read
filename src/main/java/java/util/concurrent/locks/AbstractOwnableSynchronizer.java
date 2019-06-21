@@ -58,6 +58,7 @@ public abstract class AbstractOwnableSynchronizer
      */
     protected AbstractOwnableSynchronizer() { }
 
+    //记录独自占有该锁的线程，排他性的占有
     /**
      * The current owner of exclusive mode synchronization.
      */
